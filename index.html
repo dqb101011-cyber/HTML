@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oẳn Tù Tì với Bot</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+  body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    padding: 20px;
+  }
+  .container {
+    background: #fff;
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  }
+  h1 { color: #333; margin-bottom: 20px; font-size: 28px; }
+  .score {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 12px;
+  }
+  .score div { font-weight: bold; color: #555; }
+  .score span { display: block; font-size: 24px; color: #764ba2; margin-top: 5px; }
+  .display {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin: 25px 0;
+  }
+  .choice {
+    font-size: 60px;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f0f0f0;
+    border-radius: 50%;
+    transition: transform 0.3s;
+  }
+  .vs { font-size: 24px; font-weight: bold; color: #764ba2; }
+  .result {
+    font-size: 22px;
+    font-weight: bold;
+    margin: 20px 0;
+    min-height: 30px;
+    color: #333;
+  }
+  .result.win { color: #27ae60; }
+  .result.lose { color: #e74c3c; }
+  .result.draw { color: #f39c12; }
+  .buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  button {
+    font-size: 40px;
+    padding: 15px 20px;
+    border: none;
+    background: #f0f0f0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  button:hover {
+    background: #764ba2;
+    transform: scale(1.1);
+  }
+  button:active { transform: scale(0.95); }
+  .reset {
+    margin-top: 15px;
+    font-size: 14px;
+    padding: 10px 20px;
+    background: #ddd;
+    border-radius: 8px;
+    color: #333;
+  }
+  @keyframes shake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-20deg); }
+    75% { transform: rotate(20deg); }
+  }
+  .shake { animation: shake 0.3s; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>✊✋✌️ Oẳn Tù Tì</h1>
+    
+    <div class="score">
+      <div>Bạn<span id="playerScore">0</span></div>
+      <div>Hòa<span id="drawScore">0</span></div>
+      <div>Bot<span id="botScore">0</span></div>
+    </div>
+
+    <div class="display">
+      <div class="choice" id="playerChoice">❔</div>
+      <div class="vs">VS</div>
+      <div class="choice" id="botChoice">❔</div>
+    </div>
+
+    <div class="result" id="result">Chọn một lựa chọn để bắt đầu!</div>
+
+    <div class="buttons">
+      <button onclick="play('rock')" title="Búa">✊</button>
+      <button onclick="play('paper')" title="Bao">✋</button>
+      <button onclick="play('scissors')" title="Kéo">✌️</button>
+    </div>
+
+    <button class="reset" onclick="resetGame()">🔄 Chơi lại</button>
+  </div>
+
+<script>
+  const emojis = { rock: '✊', paper: '✋', scissors: '✌️' };
+  const names = { rock: 'Búa', paper: 'Bao', scissors: 'Kéo' };
+  const choices = ['rock', 'paper', 'scissors'];
+  
+  let playerScore = 0, botScore = 0, drawScore = 0;
+
+  function play(playerPick) {
+    const playerEl = document.getElementById('playerChoice');
+    const botEl = document.getElementById('botChoice');
+    const resultEl = document.getElementById('result');
+
+    // Hiệu ứng rung
+    playerEl.classList.add('shake');
+    botEl.classList.add('shake');
+    setTimeout(() => {
+      playerEl.classList.remove('shake');
+      botEl.classList.remove('shake');
+    }, 300);
+
+    // Bot chọn ngẫu nhiên
+    const botPick = choices[Math.floor(Math.random() * 3)];
+
+    // Hiển thị
+    playerEl.textContent = emojis[playerPick];
+    botEl.textContent = emojis[botPick];
+
+    // Xác định kết quả
+    let result, className;
+    if (playerPick === botPick) {
+      result = `🤝 Hòa! Cả hai chọn ${names[playerPick]}`;
+      className = 'draw';
+      drawScore++;
+    } else if (
+      (playerPick === 'rock' && botPick === 'scissors') ||
+      (playerPick === 'paper' && botPick === 'rock') ||
+      (playerPick === 'scissors' && botPick === 'paper')
+    ) {
+      result = `🎉 Bạn thắng! ${names[playerPick]} thắng ${names[botPick]}`;
+      className = 'win';
+      playerScore++;
+    } else {
+      result = `😢 Bạn thua! ${names[botPick]} thắng ${names[playerPick]}`;
+      className = 'lose';
+      botScore++;
+    }
+
+    resultEl.textContent = result;
+    resultEl.className = 'result ' + className;
+
+    // Cập nhật điểm
+    document.getElementById('playerScore').textContent = playerScore;
+    document.getElementById('botScore').textContent = botScore;
+    document.getElementById('drawScore').textContent = drawScore;
+  }
+
+  function resetGame() {
+    playerScore = botScore = drawScore = 0;
+    document.getElementById('playerScore').textContent = 0;
+    document.getElementById('botScore').textContent = 0;
+    document.getElementById('drawScore').textContent = 0;
+    document.getElementById('playerChoice').textContent = '❔';
+    document.getElementById('botChoice').textContent = '❔';
+    const resultEl = document.getElementById('result');
+    resultEl.textContent = 'Chọn một lựa chọn để bắt đầu!';
+    resultEl.className = 'result';
+  }
+</script>
+</body>
+  </html>
